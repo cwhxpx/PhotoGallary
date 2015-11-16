@@ -9,8 +9,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by cwh on 11/13/15.
@@ -18,6 +21,7 @@ import java.io.IOException;
 public class PhotoGallaryFragment extends Fragment{
     private static final String TAG = "PhotoGallaryfragment";
     private RecyclerView mPhotoRecyclerView;
+    private List<GallaryItem> mItems = new ArrayList<>();
 
     public static PhotoGallaryFragment newInstance(){
         return new PhotoGallaryFragment();
@@ -43,11 +47,61 @@ public class PhotoGallaryFragment extends Fragment{
         return v;
     }
 
-    private class FetchItemTask extends AsyncTask<Void, Void, Void>{
+    private void setupAdapter(){
+        if(isAdded()){
+            mPhotoRecyclerView.setAdapter(new PhotoAdapter(mItems));
+        }
+    }
+
+    private class PhotoHolder extends RecyclerView.ViewHolder{
+        private TextView mTitleTextView;
+
+        public PhotoHolder(View itemView){
+            super(itemView);
+
+            mTitleTextView = (TextView)itemView;
+        }
+
+        public void bindGallaryItem(GallaryItem item){
+            mTitleTextView.setText(item.toString());
+        }
+    }
+
+    private class PhotoAdapter extends RecyclerView.Adapter<PhotoHolder>{
+        private List<GallaryItem> mGallaryItems;
+
+        public PhotoAdapter(List<GallaryItem> gallaryItems){
+            mGallaryItems = gallaryItems;
+        }
+
         @Override
-        protected Void doInBackground(Void...params){
-            new FlickrFechr().fetchItems();
-            return null;
+        public PhotoHolder onCreateViewHolder(ViewGroup viewGroup, int viewType){
+            TextView textView = new TextView(getActivity());
+            return new PhotoHolder(textView);
+        }
+
+        @Override
+        public void onBindViewHolder(PhotoHolder photoHolder, int position){
+            GallaryItem gallaryItem = mGallaryItems.get(position);
+            photoHolder.bindGallaryItem(gallaryItem);
+        }
+
+        @Override
+        public int getItemCount(){
+            return mGallaryItems.size();
+        }
+    }
+
+    private class FetchItemTask extends AsyncTask<Void, Void, List<GallaryItem>>{
+        @Override
+        protected List<GallaryItem> doInBackground(Void...params){
+            return new FlickrFechr().fetchItems();
+        }
+
+        @Override
+        protected void onPostExecute(List<GallaryItem> items){
+            mItems = items;
+            setupAdapter();
         }
     }
 }
