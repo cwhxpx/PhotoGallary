@@ -21,7 +21,13 @@ import java.util.List;
 public class PollService extends IntentService{
     private static final String TAG = "PollService";
 
-    private static final long POLL_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES; //15 mins
+    private static final long POLL_INTERVAL = 1000 * 60; //15 mins
+//    private static final long POLL_INTERVAL = AlarmManager.INTERVAL_FIFTEEN_MINUTES; //15 mins
+    public static final String ACTION_SHOW_NOTIFICATION =
+        "com.bignerdranch.android.photogallary.SHOW_NOTIFICATION";
+    public static final String PERM_PRIVATE =
+            "com.bignerdranch.android.photogallary.PRIVATE";
+    public static final String RE
 
     public static Intent newIntent(Context context){
         return new Intent(context, PollService.class);
@@ -41,6 +47,8 @@ public class PollService extends IntentService{
             alarmManager.cancel(pi);
             pi.cancel();
         }
+
+        QueryPreferences.setAlarmOn(context, isOn);
     }
 
     public static boolean isServiceAlarmOn(Context context){
@@ -95,6 +103,8 @@ public class PollService extends IntentService{
             NotificationManagerCompat notificationManagerCompat =
                     NotificationManagerCompat.from(this);
             notificationManagerCompat.notify(0, notification);
+
+            sendBroadcast(new Intent(ACTION_SHOW_NOTIFICATION), PERM_PRIVATE);
         }
 
         QueryPreferences.setLastResultId(this, resultId);
