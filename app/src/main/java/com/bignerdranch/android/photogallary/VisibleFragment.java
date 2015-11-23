@@ -23,10 +23,12 @@ public class VisibleFragment extends Fragment{
         IntentFilter filter = new IntentFilter(PollService.ACTION_SHOW_NOTIFICATION);
         getActivity().registerReceiver(mOnShowNotification, filter,
                 PollService.PERM_PRIVATE, null);
+        Log.i(TAG, "Fragment show foreground again with mOnShowNotification registered again");
     }
 
     @Override
     public void onStop(){
+        Log.i(TAG, "Fragment was destroyed with mOnShowNotification unregistered also");
         super.onStop();
         getActivity().unregisterReceiver(mOnShowNotification);
     }
